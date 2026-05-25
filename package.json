@@ -1,7 +1,7 @@
 {
   "name": "ysk-bill-js-plugin",
-  "displayName": "YSK Plugin",
-  "description": "Oracle BILLDOC 脚本编辑器 — 浏览、编辑、保存数据库中的 JS 脚本",
+  "displayName": "云时空二开表单js脚本编辑器",
+  "description": "云时空二开表单js脚本编辑器 — 浏览、编辑、保存数据库中的 JS 脚本",
   "version": "0.1.0",
   "publisher": "ysk",
   "license": "MIT",
@@ -20,7 +20,7 @@
       "activitybar": [
         {
           "id": "ysk-bill-js-plugin",
-          "title": "YSK-js脚本插件",
+          "title": "云时空二开表单js脚本编辑器",
           "icon": "media/icon.svg"
         }
       ]

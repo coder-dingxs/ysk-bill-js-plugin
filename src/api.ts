@@ -52,8 +52,8 @@ export class ApiClient {
 
   async searchBills(keyword: string): Promise<Bill[]> {
     const url = keyword
-      ? resolveUrl(this.config.searchUrl, { keyword })
-      : this.config.searchUrl.replace(/\?keyword=\{keyword\}/, '');
+      ? resolveUrl(this.config.searchBillUrl, { keyword })
+      : this.config.searchBillUrl.replace(/\?keyword=\{keyword\}/, '');
     const res = await fetch(url, { headers: this.getHeaders() });
     if (!res.ok) {
       throw new Error(`API ${res.status} ${res.statusText}`);
@@ -62,18 +62,18 @@ export class ApiClient {
     return raw.map(rawToBill);
   }
 
-  async getScript(id: string): Promise<BillScript> {
-    const url = resolveUrl(this.config.getScriptUrl, { id });
+  async getBillScript(billId: string): Promise<BillScript> {
+    const url = resolveUrl(this.config.getBillScriptUrl, { billId });
     const res = await fetch(url, { headers: this.getHeaders() });
     if (!res.ok) {
       throw new Error(`API ${res.status} ${res.statusText}`);
     }
     const raw: RawBillScript = await res.json();
-    return { billId: id, billScript: raw.billScript };
+    return { billId: billId, billScript: raw.billScript };
   }
 
-  async updateScript(id: string, billScript: string): Promise<void> {
-    const url = resolveUrl(this.config.updateScriptUrl, { id });
+  async updateBillScript(billId: string, billScript: string): Promise<void> {
+    const url = resolveUrl(this.config.putBillScriptUrl, { billId });
     const res = await fetch(url, {
       method: 'PUT',
       headers: this.getHeaders(),

@@ -43,7 +43,7 @@ export class ScriptEditorManager {
 
   async openScript(billId: string, billName: string): Promise<void> {
     try {
-      const { billScript } = await this.api.getScript(billId);
+      const { billScript } = await this.api.getBillScript(billId);
       const safeName = billName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5_-]/g, '_');
       const fileName = `${billId}-${safeName}.js`;
       const filePath = path.join(this.cacheDir, fileName);
@@ -78,7 +78,7 @@ export class ScriptEditorManager {
 
     const content = editor.document.getText();
     try {
-      await this.api.updateScript(billId, content);
+      await this.api.updateBillScript(billId, content);
       vscode.window.showInformationMessage(`✅ 脚本 [${billId}] 已保存到数据库`);
     } catch (err: any) {
       vscode.window.showErrorMessage(`保存失败: ${err.message}`);
@@ -111,7 +111,7 @@ export class ScriptEditorManager {
         return;
       }
 
-      const { billScript } = await this.api.getScript(billId);
+      const { billScript } = await this.api.getBillScript(billId);
       fs.writeFileSync(filePath, billScript, 'utf-8');
 
       const doc = vscode.workspace.textDocuments.find(d => d.uri.fsPath === filePath);

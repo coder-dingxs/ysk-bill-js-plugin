@@ -111,10 +111,10 @@ export async function activate(context: vscode.ExtensionContext) {
       const configPath = vscode.Uri.file(getConfigPath(workspaceRoot));
       const template = JSON.stringify(
         {
-          searchUrl: 'http://localhost:3000/api/bills?q={keyword}',
-          getScriptUrl: 'http://localhost:3000/api/bills/{billId}/script',
-          updateScriptUrl: 'http://localhost:3000/api/bills/{billId}/script',
-          authToken: '',
+          "searchBillUrl": "http://10.25.1.37:5678/webhook/f8546e48-938f-4473-9ae3-f60f8a93c90c?keyword={keyword}",
+          "getBillScriptUrl": "http://10.25.1.37:5678/webhook/d8fb6fe5-90e5-400a-8fae-3e5799994fae/{billId}",
+          "putBillScriptUrl": "http://10.25.1.37:5678/webhook/0dd0e0fc-e1a1-4b61-98aa-4ca03118dd05/{billId}",
+          "authToken": "",
         },
         null,
         2
@@ -139,4 +139,4 @@ export async function activate(context: vscode.ExtensionContext) {
   }
 }
 
-export function deactivate() {}
+export function deactivate() { }

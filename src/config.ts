@@ -2,9 +2,9 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 export interface AppConfig {
-  searchUrl: string;
-  getScriptUrl: string;
-  updateScriptUrl: string;
+  searchBillUrl: string;
+  getBillScriptUrl: string;
+  putBillScriptUrl: string;
   authToken?: string;
 }
 
@@ -18,7 +18,7 @@ export function loadConfig(workspaceRoot: string): AppConfig | null {
   try {
     const raw = fs.readFileSync(configPath, 'utf-8');
     const config = JSON.parse(raw) as AppConfig;
-    if (!config.searchUrl || !config.getScriptUrl || !config.updateScriptUrl) {
+    if (!config.searchBillUrl || !config.getBillScriptUrl || !config.putBillScriptUrl) {
       return null;
     }
     return config;
