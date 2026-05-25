@@ -1,0 +1,119 @@
+{
+  "name": "ysk-bill-js-plugin",
+  "displayName": "YSK Plugin",
+  "description": "Oracle BILLDOC 脚本编辑器 — 浏览、编辑、保存数据库中的 JS 脚本",
+  "version": "0.1.0",
+  "publisher": "ysk",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onView:ysk-bill-js-plugin-bills"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "ysk-bill-js-plugin",
+          "title": "YSK-js脚本插件",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "ysk-bill-js-plugin": [
+        {
+          "type": "tree",
+          "id": "ysk-bill-js-plugin-bills",
+          "name": "表单列表"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "ysk-bill-js-plugin.searchBills",
+        "title": "YSK: 搜索表单"
+      },
+      {
+        "command": "ysk-bill-js-plugin.refreshBills",
+        "title": "YSK: 刷新表单列表"
+      },
+      {
+        "command": "ysk-bill-js-plugin.openScript",
+        "title": "YSK: 打开脚本"
+      },
+      {
+        "command": "ysk-bill-js-plugin.saveScript",
+        "title": "YSK: 保存脚本到数据库"
+      },
+      {
+        "command": "ysk-bill-js-plugin.copyScriptContent",
+        "title": "YSK: 复制脚本内容"
+      },
+      {
+        "command": "ysk-bill-js-plugin.syncScript",
+        "title": "YSK: 从数据库同步"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "ysk-bill-js-plugin.searchBills",
+          "when": "view == ysk-bill-js-plugin-bills",
+          "group": "navigation@1"
+        },
+        {
+          "command": "ysk-bill-js-plugin.refreshBills",
+          "when": "view == ysk-bill-js-plugin-bills",
+          "group": "navigation@2"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "ysk-bill-js-plugin.openScript",
+          "when": "view == ysk-bill-js-plugin-bills",
+          "group": "inline"
+        },
+        {
+          "command": "ysk-bill-js-plugin.syncScript",
+          "when": "view == ysk-bill-js-plugin-bills",
+          "group": "inline"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "ysk-bill-js-plugin.copyScriptContent",
+          "group": "YSK"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "ysk-bill-js-plugin.saveScript",
+        "key": "alt+s",
+        "mac": "alt+s"
+      },
+      {
+        "command": "ysk-bill-js-plugin.copyScriptContent",
+        "key": "alt+c",
+        "mac": "alt+c"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.0"
+  }
+}
