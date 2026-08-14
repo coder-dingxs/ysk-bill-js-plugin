@@ -68,6 +68,9 @@ export class ApiClient {
       throw new Error(`API ${res.status} ${res.statusText}`);
     }
     const raw: RawBill[] = await res.json();
+    if(raw.length === 0 || (raw.length === 1 && raw[0].billId === undefined)) {
+      throw new Error('未找到相关表单数据');
+    }
     return raw.map(rawToBill);
   }
 
