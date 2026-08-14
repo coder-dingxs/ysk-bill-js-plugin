@@ -9,7 +9,7 @@ export class BillTreeItem extends vscode.TreeItem {
     public isChecked: boolean = false
   ) {
     super(billName, vscode.TreeItemCollapsibleState.None);
-    this.description = billSn;
+    this.description = `${billSn}-(${billId})`;
     this.tooltip = `${billName}\nbillId: ${billId}\nbillSn: ${billSn}`;
     this.contextValue = 'billItem';
 
