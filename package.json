@@ -11,16 +11,14 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    
-  ],
+  "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
     "viewsContainers": {
       "activitybar": [
         {
           "id": "ysk-bill-js-plugin",
-          "title": "云时空二开表单js脚本工具箱",
+          "title": "YSK",
           "icon": "media/icon.svg"
         }
       ]
@@ -30,7 +28,7 @@
         {
           "type": "tree",
           "id": "ysk-bill-js-plugin-bills",
-          "name": "表单列表",
+          "name": "脚本列表",
           "icon": "media/icon.svg"
         }
       ]
@@ -38,44 +36,98 @@
     "commands": [
       {
         "command": "ysk-bill-js-plugin.searchBills",
-        "title": "YSK:搜索表单"
+        "title": "YSK:搜索表单",
+        "icon": "$(search)"
       },
       {
         "command": "ysk-bill-js-plugin.refreshBills",
-        "title": "YSK:刷新表单列表"
+        "title": "YSK:刷新表单列表",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "ysk-bill-js-plugin.checkAllBills",
+        "title": "YSK:全选表单",
+        "icon": "$(check-all)"
+      },
+      {
+        "command": "ysk-bill-js-plugin.uncheckAllBills",
+        "title": "YSK:取消全选表单",
+        "icon": "$(close-all)"
+      },
+      {
+        "command": "ysk-bill-js-plugin.downloadCheckedScript",
+        "title": "YSK:下载选中的表单",
+        "icon": "$(download)"
       },
       {
         "command": "ysk-bill-js-plugin.openScript",
-        "title": "YSK:打开脚本"
+        "title": "YSK:打开脚本",
+        "icon": "$(go-to-file)"
+      },
+      {
+        "command": "ysk-bill-js-plugin.openCheckedScript",
+        "title": "YSK:打开选中的脚本",
+        "icon": "$(go-to-file)"
       },
       {
         "command": "ysk-bill-js-plugin.saveScript",
-        "title": "YSK:保存脚本到数据库"
+        "title": "YSK:保存脚本到数据库",
+        "icon": "$(save)"
       },
       {
         "command": "ysk-bill-js-plugin.copyScriptContent",
-        "title": "YSK:复制脚本内容"
+        "title": "YSK:复制脚本内容",
+        "icon": "$(copy)"
       },
       {
         "command": "ysk-bill-js-plugin.syncScript",
-        "title": "YSK:从数据库同步"
+        "title": "YSK:从数据库同步",
+        "icon": "$(sync)"
       },
       {
         "command": "ysk-bill-js-plugin.syncScriptToGit",
-        "title": "YSK:同步脚本到 Git"
+        "title": "YSK:同步脚本到 Git",
+        "icon": "$(git)"
+      }
+    ],
+    "submenus": [
+      {
+        "id": "ysk.batchSubmenu",
+        "label": "批量操作",
+        "icon": "$(checklist)"
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "ysk-bill-js-plugin.searchBills",
-          "when": "view == ysk-bill-js-plugin-bills",
-          "group": "navigation@1"
+          "command": "ysk-bill-js-plugin.checkAllBills",
+          "group": "navigation@1",
+          "when": "view == ysk-bill-js-plugin-bills"
         },
         {
-          "command": "ysk-bill-js-plugin.refreshBills",
-          "when": "view == ysk-bill-js-plugin-bills",
-          "group": "navigation@2"
+          "command": "ysk-bill-js-plugin.uncheckAllBills",
+          "group": "navigation@10",
+          "when": "view == ysk-bill-js-plugin-bills"
+        },
+        {
+          "submenu": "ysk.batchSubmenu",
+          "group": "navigation@50",
+          "when": "view == ysk-bill-js-plugin-bills"
+        },
+        {
+          "command": "ysk-bill-js-plugin.searchBills",
+          "group": "navigation@99",
+          "when": "view == ysk-bill-js-plugin-bills"
+        }
+      ],
+      "ysk.batchSubmenu": [
+        {
+          "command": "ysk-bill-js-plugin.downloadCheckedScript",
+          "group": "1_actions@1"
+        },
+        {
+          "command": "ysk-bill-js-plugin.openCheckedScript",
+          "group": "1_actions@2"
         }
       ],
       "view/item/context": [

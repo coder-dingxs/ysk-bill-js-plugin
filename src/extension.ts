@@ -108,6 +108,71 @@ export async function activate(context: vscode.ExtensionContext) {
       await scriptEditorManager.syncCurrentFileToGit();
     }),
 
+    vscode.commands.registerCommand('ysk-bill-js-plugin.checkAllBills', async () => {
+      if (!treeProvider) {
+        return;
+      }
+
+      // 1. 调用 Provider 的全选方法更新状态并刷新 UI
+      treeProvider.selectAll();
+
+      // 2. 给予用户简短的提示
+      const count = treeProvider.getSelectedBills().length;
+      vscode.window.showInformationMessage(`已全选 ${count} 项表单`);
+
+    }),
+
+    vscode.commands.registerCommand('ysk-bill-js-plugin.uncheckAllBills', async () => {
+      if (!treeProvider) {
+        return;
+      }
+
+      // 1. 调用 Provider 的取消全选方法更新状态并刷新 UI
+      treeProvider.unselectAll();
+
+      // 2. 给予用户简短的提示
+      vscode.window.showInformationMessage(`已取消全选表单`);
+    }),
+
+    vscode.commands.registerCommand('ysk-bill-js-plugin.downloadCheckedScript', async () => {
+      // 1. 获取所有已勾选的单据
+      const selectedBillIds = treeProvider?.getSelectedBills() || [];
+      if (selectedBillIds.length === 0) {
+        vscode.window.showWarningMessage('请先勾选至少一条表单');
+        return;
+      }
+
+      // 2. 遍历每个已勾选的单据，调用 ScriptEditorManager 的 saveScriptToLocal 方法下载脚本
+      for (const bill of selectedBillIds) {
+        try {
+          await scriptEditorManager?.saveScriptToLocal(bill);
+        } catch (err: any) {
+          vscode.window.showErrorMessage(`下载单据 ${bill.billId} 脚本失败: ${err.message}`);
+        }
+      }
+       
+    }),
+
+    vscode.commands.registerCommand('ysk-bill-js-plugin.openCheckedScript', async () => {
+      // 1. 获取所有已勾选的单据
+      const selectedBills = treeProvider?.getSelectedBills() || [];
+      if (selectedBills.length === 0) {
+        vscode.window.showWarningMessage('请先勾选至少一条表单');
+        return;
+      }
+
+      // 2. 遍历每个已勾选的单据，调用 ScriptEditorManager 的 openScript 方法打开脚本
+      for (const bill of selectedBills) {
+        try {
+          await scriptEditorManager?.openScript(bill);
+        } catch (err: any) {
+          vscode.window.showErrorMessage(`打开单据 ${bill.billId} 脚本失败: ${err.message}`);
+        }
+      }
+    }),
+
+
+
     vscode.window.onDidChangeActiveTextEditor(() => {
       scriptEditorManager?.updateActiveEditorContext();
     }),
@@ -161,10 +226,11 @@ export async function activate(context: vscode.ExtensionContext) {
       const configPath = vscode.Uri.file(getConfigPath(workspaceRoot));
       const template = JSON.stringify(
         {
-          "searchBillUrl": "http://10.25.1.37:5678/webhook/f8546e48-938f-4473-9ae3-f60f8a93c90c?keyword={keyword}&env=erp",
+          "env": "erp",
+          "searchBillUrl": "http://10.25.1.37:5678/webhook/f8546e48-938f-4473-9ae3-f60f8a93c90c?env={env}&keyword={keyword}",
           "searchBillPageSize": 50,
-          "getBillScriptUrl": "http://10.25.1.37:5678/webhook/d8fb6fe5-90e5-400a-8fae-3e5799994fae/erp/{env}/{billId}",
-          "putBillScriptUrl": "http://10.25.1.37:5678/webhook/0dd0e0fc-e1a1-4b61-98aa-4ca03118dd05/erp/{env}/{billId}",
+          "getBillScriptUrl": "http://10.25.1.37:5678/webhook/d8fb6fe5-90e5-400a-8fae-3e5799994fae/{env}/{billId}",
+          "putBillScriptUrl": "http://10.25.1.37:5678/webhook/0dd0e0fc-e1a1-4b61-98aa-4ca03118dd05/{env}/{billId}",
           "authToken": "",
           "gitSyncEnabled": true
         },

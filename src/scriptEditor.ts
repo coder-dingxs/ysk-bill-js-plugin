@@ -44,31 +44,63 @@ export class ScriptEditorManager {
     this.copyBarItem.hide();
     this.subscriptions.push(this.copyBarItem);
   }
+  /**
+   * 纯函数：根据单据信息计算出对应的本地文件路径（不产生网络请求）
+   * @param item 
+   * @returns 
+   */
+  private getFilePath(item: any): string {
+    const { billId, billName, billSn } = item;
+    let fileName = `${billId}-${billName}-${billSn}`;
+    let safeName = fileName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5_-]/g, '_').replace(/[\s]/g, '_');
+    return path.join(this.cacheDir, `${safeName}.js`);
+  }
 
+  /**
+   * 核心逻辑：固定每次都请求接口拿数据，并保存到本地缓存目录
+   * @param item 
+   * @returns 
+   */
+  async saveScriptToLocal(item: any): Promise<string> {
+    const filePath = this.getFilePath(item);
+
+    // 固定从 API 获取最新脚本内容
+    const { billScript } = await this.api.getBillScript(item.billId);
+
+    fs.writeFileSync(filePath, billScript, 'utf-8');
+
+    // 更新内存映射
+    this.billFileMap.set(item.billId, filePath);
+    this.fileBillMap.set(filePath, item.billId);
+
+    return filePath;
+  }
+
+  /**
+   * 业务入口：打开单据对应的脚本（跨重启依然能精准识别本地缓存）
+   * @param item 
+   */
   async openScript(item: any): Promise<void> {
     try {
+      const { billId } = item;
+      const expectedFilePath = this.getFilePath(item);
 
-      let billId = item.billId;
-      let billName = item.billName;
-      let billSn = item.billSn;
+      let targetFilePath = expectedFilePath;
 
+      // 只要磁盘上有该文件（即使重启过插件），就优先打开磁盘文件，无需重复请求 API
+      if (fs.existsSync(expectedFilePath)) {
+        // 顺便补全重启后丢失的内存 Map 映射
+        this.billFileMap.set(billId, expectedFilePath);
+        this.fileBillMap.set(expectedFilePath, billId);
+      } else {
+        // 本地没有，才调用 saveScriptToLocal 触发 API 请求并保存
+        targetFilePath = await this.saveScriptToLocal(item);
+      }
 
-      const { billScript } = await this.api.getBillScript(billId);
-
-      let fileName = `${billId}-${billName}-${billSn}`;
-      let safeName = fileName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5_-]/g, '_');
-      safeName = safeName.replace(/[\s]/g, '_'); // 替换空格为下划线
-      fileName = `${safeName}.js`;
-
-      const filePath = path.join(this.cacheDir, fileName);
-
-      fs.writeFileSync(filePath, billScript, 'utf-8');
-
-      this.billFileMap.set(billId, filePath);
-      this.fileBillMap.set(filePath, billId);
-
-      const doc = await vscode.workspace.openTextDocument(filePath);
-      await vscode.window.showTextDocument(doc);
+      // 打开文件并呈现状态栏控件
+      const doc = await vscode.workspace.openTextDocument(targetFilePath);
+      // 设置 preview: false，强制以全新的常驻标签页打开
+      await vscode.window.showTextDocument(doc, { preview: false });
       this.saveBarItem.show();
       this.copyBarItem.show();
     } catch (err: any) {
