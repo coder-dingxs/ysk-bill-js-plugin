@@ -195,8 +195,7 @@ export async function activate(context: vscode.ExtensionContext) {
     scriptEditorManager = new ScriptEditorManager(apiClient, workspaceRoot, context.subscriptions, gitService);
 
     try {
-      const bills = await apiClient.searchBills('测试');
-      treeProvider?.setBills(bills);
+      await safeSearch('测试');
     } catch (err: any) {
       vscode.window.showErrorMessage(`加载表单列表失败: ${err.message}`);
     }
