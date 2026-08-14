@@ -2,7 +2,7 @@
   "name": "ysk-bill-js-plugin",
   "displayName": "云时空二开表单js脚本工具箱",
   "description": "云时空二开表单js脚本工具箱 — 浏览、编辑、保存数据库中的 JS 脚本",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "ysk",
   "license": "MIT",
   "engines": {
