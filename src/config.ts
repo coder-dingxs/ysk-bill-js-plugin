@@ -6,6 +6,7 @@ export interface AppConfig {
   getBillScriptUrl: string;
   putBillScriptUrl: string;
   authToken?: string;
+  gitSyncEnabled?: boolean;
 }
 
 const CONFIG_FILE = 'ysk-bill-js-plugin.config.json';

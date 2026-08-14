@@ -2,8 +2,9 @@ import * as vscode from 'vscode';
 import * as path from 'path';
 import * as fs from 'fs';
 import { ApiClient } from './api';
+import { GitService } from './gitService';
 
-const CACHE_DIR = '.ysk-bill-js-plugin-cache';
+const CACHE_DIR = 'scripts';
 
 export class ScriptEditorManager {
   private billFileMap = new Map<string, string>();
@@ -11,12 +12,15 @@ export class ScriptEditorManager {
   private cacheDir: string;
   private saveBarItem: vscode.StatusBarItem;
   private copyBarItem: vscode.StatusBarItem;
+  private gitService: GitService | null;
 
   constructor(
     private api: ApiClient,
     private workspaceRoot: string,
-    private subscriptions: vscode.Disposable[]
+    private subscriptions: vscode.Disposable[],
+    gitService?: GitService
   ) {
+    this.gitService = gitService || null;
     this.cacheDir = path.join(workspaceRoot, CACHE_DIR);
     if (!fs.existsSync(this.cacheDir)) {
       fs.mkdirSync(this.cacheDir, { recursive: true });
@@ -79,9 +83,54 @@ export class ScriptEditorManager {
     const content = editor.document.getText();
     try {
       await this.api.updateBillScript(billId, content);
+      await editor.document.save();
       vscode.window.showInformationMessage(`✅ 脚本 [${billId}] 已保存到数据库`);
+      await this.promptAndPushToGit(filePath, billId);
     } catch (err: any) {
       vscode.window.showErrorMessage(`保存失败: ${err.message}`);
+    }
+  }
+
+  async syncCurrentFileToGit(): Promise<void> {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+      vscode.window.showErrorMessage('没有打开的编辑器');
+      return;
+    }
+
+    const filePath = editor.document.uri.fsPath;
+    const billId = this.fileBillMap.get(filePath);
+    if (!billId) {
+      vscode.window.showErrorMessage('当前文件不是 YSK 脚本文件');
+      return;
+    }
+
+    await editor.document.save();
+    await this.promptAndPushToGit(filePath, billId);
+  }
+
+  private async promptAndPushToGit(filePath: string, billId: string): Promise<void> {
+    if (!this.gitService) return;
+
+    const message = await vscode.window.showInputBox({
+      prompt: `输入 Git commit message（脚本: ${billId}）`,
+      placeHolder: '如：更新 xxx 脚本',
+      ignoreFocusOut: true,
+    });
+
+    if (message === undefined) return;
+
+    const relativePath = path.relative(this.workspaceRoot, filePath);
+    try {
+      await vscode.window.withProgress(
+        { location: vscode.ProgressLocation.Notification, title: '正在同步到 Git...' },
+        async () => {
+          await this.gitService!.commitAndPush(relativePath, message);
+        }
+      );
+      vscode.window.showInformationMessage(`✅ 已同步到 Git`);
+    } catch (err: any) {
+      vscode.window.showErrorMessage(`Git 同步失败: ${err.message}`);
     }
   }
 
@@ -127,6 +176,7 @@ export class ScriptEditorManager {
       }
 
       vscode.window.showInformationMessage(`✅ 脚本 [${billId}] 已从数据库同步`);
+      await this.promptAndPushToGit(filePath, billId);
     } catch (err: any) {
       vscode.window.showErrorMessage(`同步失败: ${err.message}`);
     }

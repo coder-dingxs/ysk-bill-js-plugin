@@ -3,6 +3,7 @@ import { loadConfig, getConfigPath } from './config';
 import { ApiClient } from './api';
 import { BillTreeProvider } from './billTreeProvider';
 import { ScriptEditorManager } from './scriptEditor';
+import { GitService } from './gitService';
 
 let treeProvider: BillTreeProvider | undefined;
 let scriptEditorManager: ScriptEditorManager | undefined;
@@ -93,6 +94,14 @@ export async function activate(context: vscode.ExtensionContext) {
       await scriptEditorManager.syncFromApi(item.billId);
     }),
 
+    vscode.commands.registerCommand('ysk-bill-js-plugin.syncScriptToGit', async () => {
+      if (!scriptEditorManager) {
+        vscode.window.showErrorMessage('请先配置 ysk-bill-js-plugin.config.json');
+        return;
+      }
+      await scriptEditorManager.syncCurrentFileToGit();
+    }),
+
     vscode.window.onDidChangeActiveTextEditor(() => {
       scriptEditorManager?.updateActiveEditorContext();
     }),
@@ -129,7 +138,9 @@ export async function activate(context: vscode.ExtensionContext) {
   await vscode.commands.executeCommand('setContext', 'yskPlugin:configLoaded', true);
 
   apiClient = new ApiClient(config);
-  scriptEditorManager = new ScriptEditorManager(apiClient, workspaceRoot, context.subscriptions);
+
+  const gitService = config.gitSyncEnabled ? new GitService(workspaceRoot) : undefined;
+  scriptEditorManager = new ScriptEditorManager(apiClient, workspaceRoot, context.subscriptions, gitService);
 
   try {
     const bills = await apiClient.searchBills('');

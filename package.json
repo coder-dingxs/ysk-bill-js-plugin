@@ -58,6 +58,10 @@
       {
         "command": "ysk-bill-js-plugin.syncScript",
         "title": "YSK: 从数据库同步"
+      },
+      {
+        "command": "ysk-bill-js-plugin.syncScriptToGit",
+        "title": "YSK: 同步脚本到 Git"
       }
     ],
     "menus": {
@@ -88,7 +92,11 @@
       "editor/context": [
         {
           "command": "ysk-bill-js-plugin.copyScriptContent",
-          "group": "YSK"
+          "group": "YSK@1"
+        },
+        {
+          "command": "ysk-bill-js-plugin.syncScriptToGit",
+          "group": "YSK@2"
         }
       ]
     },
