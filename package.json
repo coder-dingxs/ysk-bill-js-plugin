@@ -12,7 +12,7 @@
     "Other"
   ],
   "activationEvents": [
-    
+    "onView:ysk-bill-js-plugin-bills"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -30,39 +30,38 @@
         {
           "type": "tree",
           "id": "ysk-bill-js-plugin-bills",
-          "name": "表单列表",
-          "icon": "media/icon.svg"
+          "name": "表单列表"
         }
       ]
     },
     "commands": [
       {
         "command": "ysk-bill-js-plugin.searchBills",
-        "title": "YSK: 搜索表单"
+        "title": "YSK:搜索表单"
       },
       {
         "command": "ysk-bill-js-plugin.refreshBills",
-        "title": "YSK: 刷新表单列表"
+        "title": "YSK:刷新表单列表"
       },
       {
         "command": "ysk-bill-js-plugin.openScript",
-        "title": "YSK: 打开脚本"
+        "title": "YSK:打开脚本"
       },
       {
         "command": "ysk-bill-js-plugin.saveScript",
-        "title": "YSK: 保存脚本到数据库"
+        "title": "YSK:保存脚本到数据库"
       },
       {
         "command": "ysk-bill-js-plugin.copyScriptContent",
-        "title": "YSK: 复制脚本内容"
+        "title": "YSK:复制脚本内容"
       },
       {
         "command": "ysk-bill-js-plugin.syncScript",
-        "title": "YSK: 从数据库同步"
+        "title": "YSK:从数据库同步"
       },
       {
         "command": "ysk-bill-js-plugin.syncScriptToGit",
-        "title": "YSK: 同步脚本到 Git"
+        "title": "YSK:同步脚本到 Git"
       }
     ],
     "menus": {
