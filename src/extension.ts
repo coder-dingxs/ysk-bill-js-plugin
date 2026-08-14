@@ -21,6 +21,7 @@ export async function activate(context: vscode.ExtensionContext) {
   treeProvider = new BillTreeProvider();
   const treeView = vscode.window.createTreeView('ysk-bill-js-plugin-bills', {
     treeDataProvider: treeProvider,
+    manageCheckboxStateManually: true
   });
 
   const safeSearch = async (keyword: string) => {
@@ -32,7 +33,12 @@ export async function activate(context: vscode.ExtensionContext) {
     treeProvider!.setBills(bills);
   };
 
+  // 1. 注册所有快捷命令与事件监听（只注册一次）
   context.subscriptions.push(
+    treeView.onDidChangeCheckboxState(e => {
+      treeProvider?.handleCheckboxChange(e.items);
+    }),
+
     vscode.commands.registerCommand('ysk-bill-js-plugin.searchBills', async () => {
       const query = await vscode.window.showInputBox({
         prompt: '输入 BILLSN 或 BILLNAME 搜索',
@@ -109,9 +115,44 @@ export async function activate(context: vscode.ExtensionContext) {
     treeView
   );
 
-  const config = loadConfig(workspaceRoot);
-  if (!config) {
-    const createAction = '创建模板';
+  // 2. 核心：封装初始化逻辑
+  const initApp = async (): Promise<boolean> => {
+    const config = loadConfig(workspaceRoot);
+    if (!config) {
+      await vscode.commands.executeCommand('setContext', 'yskPlugin:configLoaded', false);
+      return false;
+    }
+
+    await vscode.commands.executeCommand('setContext', 'yskPlugin:configLoaded', true);
+
+    apiClient = new ApiClient(config);
+    const gitService = config.gitSyncEnabled ? new GitService(workspaceRoot) : undefined;
+    scriptEditorManager = new ScriptEditorManager(apiClient, workspaceRoot, context.subscriptions, gitService);
+
+    try {
+      const bills = await apiClient.searchBills('');
+      treeProvider?.setBills(bills);
+    } catch (err: any) {
+      vscode.window.showErrorMessage(`加载表单列表失败: ${err.message}`);
+    }
+    return true;
+  };
+
+  // 3. 核心：添加配置文件监听器，文件创建或修改时自动热重载配置
+  const configWatcher = vscode.workspace.createFileSystemWatcher(
+    new vscode.RelativePattern(workspaceRoot, 'ysk-bill-js-plugin.config.json')
+  );
+
+  configWatcher.onDidChange(() => initApp());
+  configWatcher.onDidCreate(() => initApp());
+  context.subscriptions.push(configWatcher);
+
+  // 4. 首次尝试初始化
+  const isInitialized = await initApp();
+
+  // 5. 若配置未成功加载，引导生成默认配置并自动生效
+  if (!isInitialized) {
+    const createAction = '生成默认配置';
     const result = await vscode.window.showWarningMessage(
       '未找到 ysk-bill-js-plugin.config.json 配置文件',
       createAction
@@ -120,10 +161,12 @@ export async function activate(context: vscode.ExtensionContext) {
       const configPath = vscode.Uri.file(getConfigPath(workspaceRoot));
       const template = JSON.stringify(
         {
-          "searchBillUrl": "http://10.25.1.37:5678/webhook/f8546e48-938f-4473-9ae3-f60f8a93c90c?keyword={keyword}",
-          "getBillScriptUrl": "http://10.25.1.37:5678/webhook/d8fb6fe5-90e5-400a-8fae-3e5799994fae/{billId}",
-          "putBillScriptUrl": "http://10.25.1.37:5678/webhook/0dd0e0fc-e1a1-4b61-98aa-4ca03118dd05/{billId}",
+          "searchBillUrl": "http://10.25.1.37:5678/webhook/f8546e48-938f-4473-9ae3-f60f8a93c90c?keyword={keyword}&env=erp",
+          "searchBillPageSize": 50,
+          "getBillScriptUrl": "http://10.25.1.37:5678/webhook/d8fb6fe5-90e5-400a-8fae-3e5799994fae/erp/{env}/{billId}",
+          "putBillScriptUrl": "http://10.25.1.37:5678/webhook/0dd0e0fc-e1a1-4b61-98aa-4ca03118dd05/erp/{env}/{billId}",
           "authToken": "",
+          "gitSyncEnabled": true
         },
         null,
         2
@@ -131,22 +174,10 @@ export async function activate(context: vscode.ExtensionContext) {
       await vscode.workspace.fs.writeFile(configPath, Buffer.from(template, 'utf-8'));
       const doc = await vscode.workspace.openTextDocument(configPath);
       await vscode.window.showTextDocument(doc);
+
+      // 创建完配置文件后立即加载生效，不再需要重启 VS Code
+      await initApp();
     }
-    return;
-  }
-
-  await vscode.commands.executeCommand('setContext', 'yskPlugin:configLoaded', true);
-
-  apiClient = new ApiClient(config);
-
-  const gitService = config.gitSyncEnabled ? new GitService(workspaceRoot) : undefined;
-  scriptEditorManager = new ScriptEditorManager(apiClient, workspaceRoot, context.subscriptions, gitService);
-
-  try {
-    const bills = await apiClient.searchBills('');
-    treeProvider.setBills(bills);
-  } catch (err: any) {
-    vscode.window.showErrorMessage(`加载表单列表失败: ${err.message}`);
   }
 }
 
