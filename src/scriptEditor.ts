@@ -45,11 +45,21 @@ export class ScriptEditorManager {
     this.subscriptions.push(this.copyBarItem);
   }
 
-  async openScript(billId: string, billName: string): Promise<void> {
+  async openScript(item: any): Promise<void> {
     try {
+
+      let billId = item.billId;
+      let billName = item.billName;
+      let billSn = item.billSn;
+
+
       const { billScript } = await this.api.getBillScript(billId);
-      const safeName = billName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5_-]/g, '_');
-      const fileName = `${billId}-${safeName}.js`;
+
+      let fileName = `${billId}-${billName}-${billSn}`;
+      let safeName = fileName.replace(/[^a-zA-Z0-9\u4e00-\u9fa5_-]/g, '_');
+      safeName = safeName.replace(/[\s]/g, '_'); // 替换空格为下划线
+      fileName = `${safeName}.js`;
+
       const filePath = path.join(this.cacheDir, fileName);
 
       fs.writeFileSync(filePath, billScript, 'utf-8');
