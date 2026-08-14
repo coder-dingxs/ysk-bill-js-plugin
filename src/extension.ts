@@ -63,7 +63,7 @@ export async function activate(context: vscode.ExtensionContext) {
         vscode.window.showErrorMessage('请先配置 ysk-bill-js-plugin.config.json');
         return;
       }
-      await scriptEditorManager.openScript(item.billId, item.billName || item.billId);
+      await scriptEditorManager.openScript(item);
     }),
 
     vscode.commands.registerCommand('ysk-bill-js-plugin.saveScript', async () => {
