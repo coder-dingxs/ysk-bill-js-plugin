@@ -51,6 +51,16 @@ export class ApiClient {
   }
 
   async searchBills(keyword: string): Promise<Bill[]> {
+    // 如果keyword为空,则直接使用searchBillUrl，不带keyword参数
+    if (!keyword || keyword.trim() === '') {
+      const res = await fetch(this.config.searchBillUrl, { headers: this.getHeaders() });
+      if (!res.ok) {
+        throw new Error(`API ${res.status} ${res.statusText}`);
+      }
+      const raw: RawBill[] = await res.json();
+      return raw.map(rawToBill);
+    }
+
     const url = keyword
       ? resolveUrl(this.config.searchBillUrl, { keyword })
       : this.config.searchBillUrl.replace(/\?keyword=\{keyword\}/, '');
