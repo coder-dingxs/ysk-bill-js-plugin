@@ -12,7 +12,7 @@
     "Other"
   ],
   "activationEvents": [
-    "onView:ysk-bill-js-plugin-bills"
+    
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -30,7 +30,8 @@
         {
           "type": "tree",
           "id": "ysk-bill-js-plugin-bills",
-          "name": "表单列表"
+          "name": "表单列表",
+          "icon": "media/icon.svg"
         }
       ]
     },
