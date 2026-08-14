@@ -4,3 +4,4 @@ node_modules/
 out/
 .ysk-bill-js-plugin-cache/
 ysk-bill-js-plugin.config.json
+.DS_Store
