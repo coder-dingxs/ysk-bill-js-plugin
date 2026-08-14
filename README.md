@@ -1,4 +1,4 @@
-# 云时空二开表单 js 脚本编辑器
+# 云时空二开表单 js 脚本工具箱
 
 **ysk-bill-js-plugin** 是一个 VS Code 扩展，用于浏览云时空（Oracle BILLDOC）数据库中的表单，并在线编辑、保存关联的 JS 脚本。
 
@@ -19,7 +19,7 @@
 
 ## 安装
 
-~~在 VS Code 扩展商店搜索 "云时空二开表单js脚本编辑器" 安装，或从 VSIX 包安装。~~
+~~在 VS Code 扩展商店搜索 "云时空二开表单js脚本工具箱" 安装，或从 VSIX 包安装。~~
 
 安装ysk-bill-js-plugin.vsix文件
 
