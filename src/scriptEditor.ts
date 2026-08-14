@@ -65,7 +65,10 @@ export class ScriptEditorManager {
     const filePath = this.getFilePath(item);
 
     // 固定从 API 获取最新脚本内容
-    const { billScript } = await this.api.getBillScript(item.billId);
+    let { billScript } = await this.api.getBillScript(item.billId);
+    if (billScript === undefined || billScript === null) {
+      billScript = '';
+    }
 
     fs.writeFileSync(filePath, billScript, 'utf-8');
 
