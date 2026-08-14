@@ -41,7 +41,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
     vscode.commands.registerCommand('ysk-bill-js-plugin.searchBills', async () => {
       const query = await vscode.window.showInputBox({
-        prompt: '输入 BILLSN 或 BILLNAME 搜索',
+        prompt: '输入关键词(BILLID/BILLSN/BILLNAME)搜索',
         placeHolder: '搜索关键词（留空显示全部）',
       });
       if (query === undefined) return;
@@ -195,7 +195,7 @@ export async function activate(context: vscode.ExtensionContext) {
     scriptEditorManager = new ScriptEditorManager(apiClient, workspaceRoot, context.subscriptions, gitService);
 
     try {
-      const bills = await apiClient.searchBills('');
+      const bills = await apiClient.searchBills('测试');
       treeProvider?.setBills(bills);
     } catch (err: any) {
       vscode.window.showErrorMessage(`加载表单列表失败: ${err.message}`);
