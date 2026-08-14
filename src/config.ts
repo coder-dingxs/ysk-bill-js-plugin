@@ -2,6 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 export interface AppConfig {
+  env: string;
   searchBillUrl: string;
   getBillScriptUrl: string;
   putBillScriptUrl: string;
@@ -15,6 +16,7 @@ const CONFIG_FILE = 'ysk-bill-js-plugin.config.json';
 const DEFAULT_CONFIG: Partial<AppConfig> = {
   gitSyncEnabled: true,      // 默认开启 Git 同步
   authToken: '',              // 默认为空 Token
+  env: 'erp-test'                  // 默认环境
 };
 
 export function loadConfig(workspaceRoot: string): AppConfig | null {

@@ -38,7 +38,7 @@ function resolveUrl(template: string, params: Record<string, string>): string {
 }
 
 export class ApiClient {
-  constructor(private config: AppConfig) {}
+  constructor(private config: AppConfig) { }
 
   private getHeaders(): Record<string, string> {
     const headers: Record<string, string> = {
@@ -51,19 +51,18 @@ export class ApiClient {
   }
 
   async searchBills(keyword: string): Promise<Bill[]> {
-    // 如果keyword为空,则直接使用searchBillUrl，不带keyword参数
-    if (!keyword || keyword.trim() === '') {
-      const res = await fetch(this.config.searchBillUrl, { headers: this.getHeaders() });
-      if (!res.ok) {
-        throw new Error(`API ${res.status} ${res.statusText}`);
-      }
-      const raw: RawBill[] = await res.json();
-      return raw.map(rawToBill);
-    }
 
-    const url = keyword
-      ? resolveUrl(this.config.searchBillUrl, { keyword })
-      : this.config.searchBillUrl.replace(/\?keyword=\{keyword\}/, '');
+    // 先处理env参数，确保在不同环境下使用不同的API URL
+    let env = this.config.env;
+    let url = this.config.searchBillUrl;
+    url = resolveUrl(url, { env });
+    // 如果keyword为空, 不带keyword参数
+    if (keyword && keyword.trim() !== '') {
+      url = resolveUrl(url, { keyword });
+    } else {
+      // 如果keyword为空，则移除URL中的keyword参数
+      url = url.replace(/\&keyword=\{keyword\}/, '');
+    }
     const res = await fetch(url, { headers: this.getHeaders() });
     if (!res.ok) {
       throw new Error(`API ${res.status} ${res.statusText}`);
@@ -73,7 +72,11 @@ export class ApiClient {
   }
 
   async getBillScript(billId: string): Promise<BillScript> {
-    const url = resolveUrl(this.config.getBillScriptUrl, { billId });
+
+    let env = this.config.env;
+    let url = this.config.getBillScriptUrl;
+    url = resolveUrl(url, { env });
+    url = resolveUrl(url, { billId });
     const res = await fetch(url, { headers: this.getHeaders() });
     if (!res.ok) {
       throw new Error(`API ${res.status} ${res.statusText}`);
@@ -83,7 +86,10 @@ export class ApiClient {
   }
 
   async updateBillScript(billId: string, billScript: string): Promise<void> {
-    const url = resolveUrl(this.config.putBillScriptUrl, { billId });
+    let env = this.config.env;
+    let url = this.config.putBillScriptUrl;
+    url = resolveUrl(url, { env });
+    url = resolveUrl(url, { billId });
     const res = await fetch(url, {
       method: 'PUT',
       headers: this.getHeaders(),
