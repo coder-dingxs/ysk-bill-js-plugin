@@ -221,7 +221,7 @@ export class ScriptEditorManager {
       }
 
       vscode.window.showInformationMessage(`✅ 脚本 [${billId}] 已从数据库同步`);
-      await this.promptAndPushToGit(filePath, billId);
+      // await this.promptAndPushToGit(filePath, billId);
     } catch (err: any) {
       vscode.window.showErrorMessage(`同步失败: ${err.message}`);
     }
